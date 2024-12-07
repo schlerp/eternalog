@@ -15,8 +15,12 @@ annotated-types==0.7.0
 anyio==4.6.2.post1
     # via starlette
     # via watchfiles
+cffi==1.17.1
+    # via cryptography
 click==8.1.7
     # via uvicorn
+cryptography==44.0.0
+    # via eternalog
 fastapi==0.115.5
     # via eternalog
 h11==0.14.0
@@ -25,6 +29,10 @@ httptools==0.6.4
     # via uvicorn
 idna==3.10
     # via anyio
+loguru==0.7.3
+    # via eternalog
+pycparser==2.22
+    # via cffi
 pydantic==2.10.2
     # via fastapi
 pydantic-core==2.27.1
