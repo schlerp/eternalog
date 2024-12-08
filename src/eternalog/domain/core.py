@@ -1,4 +1,5 @@
 from __future__ import annotations
+import uuid
 
 from eternalog.domain import config, schemas
 import binascii
@@ -45,7 +46,16 @@ def verify(data: bytes, signature: bytes, pubkey: rsa.RSAPublicKey) -> bool:
 
 
 class Block:
-    def __init__(self, content: bytes = b"", parent_block: Block | None = None):
+    def __init__(
+        self,
+        *,
+        content: bytes = b"",
+        parent_block: Block | None = None,
+        id: uuid.UUID | None = None,
+    ):
+        if id is None:
+            id = uuid.uuid4()
+        self.id = id
         self.timestamp = datetime.now()
         self.content = content
         self.parent_block: Block | None = parent_block
