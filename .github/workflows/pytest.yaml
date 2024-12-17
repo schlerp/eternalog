@@ -1,0 +1,35 @@
+name: Pytest
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.12]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: phi-friday/install-rye@v2
+      id: install-rye
+      with:
+        rye_version: "latest" # optional
+        rye_home: "" # optional
+        python_version: ${{ matrix.python-version }} # optional
+        use_uv: true # optional
+    - name: Install Dependencies
+      run: |
+        rye sync
+    - name: Run Tests
+      run: |
+        cd src && rye run pytest -vvv
