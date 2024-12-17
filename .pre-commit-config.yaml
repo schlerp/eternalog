@@ -1,0 +1,30 @@
+---
+default_language_version:
+  python: "3.12"
+repos:
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.390
+    hooks:
+    - id: pyright
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+        stages: ["pre-commit"]
+      - id: trailing-whitespace
+        stages: ["pre-commit"]
+      - id: mixed-line-ending
+        stages: ["pre-commit"]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.43.0
+    hooks:
+      - id: markdownlint-fix
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.8.3"
+    hooks:
+      - id: ruff
+        args: ["--fix", "--exit-non-zero-on-fix"]
+      - id: ruff-format

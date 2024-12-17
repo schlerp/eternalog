@@ -6,13 +6,13 @@ from eternalog.domain import core
 
 
 class BlockNotFoundError(Exception):
-    def __init__(self, block_id: uuid.UUID):
+    def __init__(self, block_id: uuid.UUID) -> None:
         self.block_id = block_id
         super().__init__(f"Block with id {block_id} not found.")
 
 
 class BlockchainService:
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.starting_block = core.Block(
             content=f"Genesis Block: {self.name}".encode("utf-8"), parent_block=None

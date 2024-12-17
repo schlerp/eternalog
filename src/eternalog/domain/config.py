@@ -1,9 +1,9 @@
 import os
-from typing import cast
 import tempfile
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+from typing import cast
 
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 _KEY_PATH = tempfile.gettempdir() + "/private.pem"
 

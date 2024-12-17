@@ -1,15 +1,16 @@
 from __future__ import annotations
-import uuid
 
-from eternalog.domain import config, schemas
 import binascii
+import uuid
 from datetime import datetime
-from typing import Optional, override
+from typing import Optional
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
+
+from eternalog.domain import config
 
 
 def get_private_key() -> rsa.RSAPrivateKey:
@@ -52,7 +53,7 @@ class Block:
         content: bytes = b"",
         parent_block: Block | None = None,
         id: uuid.UUID | None = None,
-    ):
+    ) -> None:
         if id is None:
             id = uuid.uuid4()
         self.id = id
@@ -78,7 +79,7 @@ class Block:
     def get_content(self) -> str:
         return self.content.decode("utf-8")
 
-    def get_parent_block(self) -> Optional["BlockChain"]:
+    def get_parent_block(self) -> Optional["Block"]:
         return self.parent_block
 
     def _sign(self) -> bytes:
@@ -91,7 +92,7 @@ class Block:
             pubkey=get_public_key(),
         )
 
-    def walk_blocks(self) -> list["BlockChain"]:
+    def walk_blocks(self) -> list["Block"]:
         current_block = self
         blocks = []
         while True:
