@@ -68,6 +68,8 @@ pydantic-core==2.27.1
     # via pydantic
 pyright==1.1.390
 pytest==8.3.3
+    # via pytest-picked
+pytest-picked==0.5.1
 python-dotenv==1.0.1
     # via uvicorn
 pyyaml==6.0.2

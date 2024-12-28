@@ -26,6 +26,7 @@ dev-dependencies = [
     "httpx>=0.28.0",
     "pre-commit>=4.0.1",
     "pyright>=1.1.390",
+    "pytest-picked>=0.5.1",
 ]
 
 [tool.pyright]
