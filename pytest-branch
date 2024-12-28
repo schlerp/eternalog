@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+pytest --picked --mode=branch
+
+EXIT_CODE=$?
+
+# we want to succeed on
+if [[ $? -eq 5 ]]; then
+    EXIT_CODE=0
+fi
+
+exit $EXIT_CODE
