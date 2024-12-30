@@ -5,7 +5,7 @@ from typing import cast
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-_KEY_PATH = tempfile.gettempdir() + "/private.pem"
+_KEY_PATH = tempfile.mkdtemp() + "/private.pem"
 
 
 def _load_private_key_from_file(path: str) -> rsa.RSAPrivateKey | None:
