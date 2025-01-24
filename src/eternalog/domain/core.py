@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from eternalog.domain import config
+from eternalog.domain import schemas
 
 
 def get_private_key() -> rsa.RSAPrivateKey:
@@ -102,6 +103,15 @@ class Block:
             else:
                 break
         return list(reversed(blocks))
+
+    def as_schema(self) -> schemas.BlockSchema:
+        return schemas.BlockSchema(
+            id=self.id,
+            timestamp=self.timestamp,
+            content=self.content.decode("utf-8"),
+            signature=self.signature,
+            parent_block=self.parent_block.as_schema() if self.parent_block else None,
+        )
 
     def __repr__(self) -> str:
         ret = f"\n{self.__class__.__name__}"
