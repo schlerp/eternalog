@@ -28,10 +28,10 @@ class TestSchemas:
         message = "Test message"
         timestamp = datetime.datetime.now()
 
-        log_entry = schemas.LogEntry(message=message, timestamp=timestamp)
+        log_entry = schemas.LogEntry(content=message, timestamp=timestamp)
 
         assert log_entry.id is not None
-        assert log_entry.message == message
+        assert log_entry.content == message
         assert log_entry.timestamp == timestamp
 
     def test_log_entry_database(self) -> None:
@@ -41,14 +41,14 @@ class TestSchemas:
         updated_at = datetime.datetime.now()
 
         log_entry = schemas.LogEntryDatabase(
-            message=message,
+            content=message,
             timestamp=timestamp,
             created_at=created_at,
             updated_at=updated_at,
         )
 
         assert log_entry.id is not None
-        assert log_entry.message == message
+        assert log_entry.content == message
         assert log_entry.timestamp == timestamp
         assert log_entry.created_at == created_at
         assert log_entry.updated_at == updated_at
@@ -61,13 +61,13 @@ class TestSchemas:
 
         block = schemas.BlockSchema(
             timestamp=timestamp,
-            message=message,
+            content=message,
             signature=signature,
             parent_block=parent_block,
         )
 
         assert block.timestamp == timestamp
-        assert block.message == message
+        assert block.content == message
         assert block.signature == signature
         assert block.parent_block == parent_block
 
@@ -81,7 +81,7 @@ class TestSchemas:
 
         block = schemas.BlockSchemaDatbase(
             timestamp=timestamp,
-            message=message,
+            content=message,
             signature=signature,
             parent_block=parent_block,
             created_at=created_at,
@@ -89,7 +89,7 @@ class TestSchemas:
         )
 
         assert block.timestamp == timestamp
-        assert block.message == message
+        assert block.content == message
         assert block.signature == signature
         assert block.parent_block == parent_block
         assert block.created_at == created_at

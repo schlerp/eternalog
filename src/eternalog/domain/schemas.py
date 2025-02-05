@@ -22,7 +22,7 @@ class DatabaseMixin(pydantic.BaseModel):
 
 
 class LogEntry(EternalogSchema):
-    message: str
+    content: str
     timestamp: datetime.datetime = pydantic.Field(default_factory=datetime.datetime.now)
 
 
