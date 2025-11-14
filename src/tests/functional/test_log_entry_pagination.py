@@ -38,5 +38,26 @@ def test_pagination_limits() -> None:
         )
         body3 = resp3.json()
         assert body3["offset"] == 20
-        # last page may have 10 or fewer depending on seed
         assert len(body3["items"]) <= 10
+
+        # limit validation
+        bad_limit = client.get("/api/v1/log_entries?limit=1000", headers=API_HEADERS)
+        assert bad_limit.status_code == 400
+        negative_limit = client.get("/api/v1/log_entries?limit=-1", headers=API_HEADERS)
+        assert negative_limit.status_code == 400
+
+        # sort ascending
+        asc_resp = client.get(
+            "/api/v1/log_entries?limit=5&sort_dir=asc", headers=API_HEADERS
+        )
+        assert asc_resp.status_code == 200
+        asc_items = asc_resp.json()["items"]
+        assert len(asc_items) == 5
+
+        # filtering by substring
+        filter_resp = client.get(
+            "/api/v1/log_entries?content_substr=msg-1", headers=API_HEADERS
+        )
+        assert filter_resp.status_code == 200
+        filt_items = filter_resp.json()["items"]
+        assert any("msg-1" in it["content"] for it in filt_items)

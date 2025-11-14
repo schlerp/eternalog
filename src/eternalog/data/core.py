@@ -39,6 +39,37 @@ def log_entry_list(
     )
 
 
+def log_entry_search(
+    db: Session,
+    *,
+    limit: int = 50,
+    offset: int = 0,
+    content_substr: str | None = None,
+    start_ts=None,
+    end_ts=None,
+    sort_field: str = "created_at",
+    sort_dir: str = "desc",
+) -> tuple[list[models.LogEntry], int]:  # type: ignore[no-untyped-def]
+    q = db.query(models.LogEntry)
+    if content_substr:
+        q = q.filter(models.LogEntry.content.ilike(f"%{content_substr}%"))
+    if start_ts is not None:
+        q = q.filter(models.LogEntry.timestamp >= start_ts)
+    if end_ts is not None:
+        q = q.filter(models.LogEntry.timestamp <= end_ts)
+    total = q.count()
+    # validate sort field
+    if sort_field not in {"created_at", "updated_at", "timestamp"}:
+        sort_field = "created_at"
+    col = getattr(models.LogEntry, sort_field)
+    if sort_dir.lower() == "asc":
+        q = q.order_by(col.asc())
+    else:
+        q = q.order_by(col.desc())
+    items = q.offset(offset).limit(limit).all()
+    return items, total
+
+
 def log_entry_count(db: Session) -> int:  # type: ignore[no-untyped-def]
     return db.query(models.LogEntry).count()
 

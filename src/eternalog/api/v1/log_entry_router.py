@@ -35,10 +35,29 @@ def get_all_log_entries(
     _: str = Depends(api_key_auth),
     limit: int = 50,
     offset: int = 0,
+    content_substr: str | None = None,
+    start_ts: datetime.datetime | None = None,
+    end_ts: datetime.datetime | None = None,
+    sort_field: str = "created_at",
+    sort_dir: str = "desc",
 ) -> api_schemas.PaginatedLogEntries:
-    """Get paginated log entries."""
-    entries = data_core.log_entry_list(db, limit=limit, offset=offset)
-    total = data_core.log_entry_count(db)
+    """Get paginated log entries with optional filters and sorting."""
+    if limit > 100 or limit <= 0:
+        raise HTTPException(status_code=400, detail="limit out of range (1-100)")
+    if offset < 0:
+        raise HTTPException(status_code=400, detail="offset must be >= 0")
+    if sort_dir.lower() not in {"asc", "desc"}:
+        raise HTTPException(status_code=400, detail="sort_dir must be 'asc' or 'desc'")
+    entries, total = data_core.log_entry_search(
+        db,
+        limit=limit,
+        offset=offset,
+        content_substr=content_substr,
+        start_ts=start_ts,
+        end_ts=end_ts,
+        sort_field=sort_field,
+        sort_dir=sort_dir,
+    )
     return api_schemas.PaginatedLogEntries(
         items=[
             api_schemas.LogEntryOut(

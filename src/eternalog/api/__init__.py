@@ -9,6 +9,13 @@ def create_api() -> FastAPI:
         title="Eternalog",
         description="An immutable log storage/versioning service.",
         version="0.1.0",
+        openapi_tags=[
+            {
+                "name": "log_entries",
+                "description": "Operations on stored log entries with pagination, filtering, and sorting.",
+            },
+            {"name": "health", "description": "Health and readiness checks."},
+        ],
     )
     api.include_router(health_router)
     api.include_router(v1_router)
