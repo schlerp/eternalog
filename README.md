@@ -9,7 +9,8 @@ Immutable log storage & blockchain-inspired versioning service.
 4. Lint/format: `ruff check .` / `ruff format .`; types: `pyright`
 
 ## Log Entry API
-- List: `GET /api/v1/log_entries`
+- List: `GET /api/v1/log_entries?limit=<int>&offset=<int>` (returns `{items: [...], total, limit, offset}`)
+  - Default `limit=50`, `offset=0`; recommended max limit 100.
 - Get: `GET /api/v1/log_entries/{id}`
 - Create: `POST /api/v1/log_entries` (`content`, `timestamp` ISO8601)
 - Update: `PUT /api/v1/log_entries/{id}`
