@@ -12,5 +12,8 @@ wheels/
 # direnv environment
 .direnv/
 
+# local sqlite db files
+*.db
+
 #
 .testmondata
