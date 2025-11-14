@@ -18,7 +18,11 @@ Immutable log storage & blockchain-inspired versioning service.
 ## Persistence
 - SQLite by default (`ETERNALOG_SQLALCHEMY_DATABASE_URL` override env)
 - Auto-creates tables on first test usage via `data.core.create_all`
-- Migrations: (Alembic planned) run `alembic upgrade head` after configuring (see Alembic README TBD)
+- Migrations: Alembic initialized. Common commands:
+  - New revision: `alembic revision -m "desc" --autogenerate`
+  - Upgrade: `alembic upgrade head`
+  - Downgrade last: `alembic downgrade -1`
+  - Show history: `alembic history --verbose`
 
 ## Health Endpoints
 - Liveness: `GET /health/live`

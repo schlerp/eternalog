@@ -36,3 +36,9 @@ jobs:
     - name: run ruff check
       run: |
         rye run ruff check .
+    - name: Run Alembic migrations (upgrade head)
+      run: |
+        rye run alembic upgrade head
+    - name: Show Alembic history
+      run: |
+        rye run alembic history --verbose | tail -n 20
