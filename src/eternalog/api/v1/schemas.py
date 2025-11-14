@@ -24,8 +24,13 @@ class PaginatedLogEntries(schemas.EternalogSchema):
     offset: int
 
 
-class ErrorResponse(schemas.EternalogSchema):
+import pydantic
+
+
+class ErrorResponse(pydantic.BaseModel):
     """Error response body."""
 
     detail: str
     code: str | None = None
+    request_id: str | None = None
+    correlation_id: str | None = None

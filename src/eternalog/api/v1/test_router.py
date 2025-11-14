@@ -18,3 +18,8 @@ class TestResponse(pydantic.BaseModel):
 @router.get("/echo/{message}")
 def echo(message: str) -> TestResponse:
     return TestResponse(message=message)
+
+
+@router.get("/error")
+def trigger_error() -> TestResponse:  # type: ignore[no-untyped-def]
+    raise RuntimeError("forced test error")
