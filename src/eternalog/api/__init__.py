@@ -24,6 +24,21 @@ def create_api() -> FastAPI:
     api.include_router(health_router)
     api.include_router(v1_router)
 
+    @api.on_event("startup")
+    async def on_startup():  # type: ignore[no-untyped-def]
+        # Placeholder for future resource init (db pools, redis, etc.)
+        pass
+
+    @api.on_event("shutdown")
+    async def on_shutdown():  # type: ignore[no-untyped-def]
+        try:
+            from eternalog.api import rate_limit  # pyright: ignore [reportMissingImports]
+
+            rate_limit._buckets.clear()  # type: ignore[attr-defined]
+            rate_limit._cache.clear()  # type: ignore[attr-defined]
+        except Exception:
+            pass
+
     @api.exception_handler(Exception)
     async def generic_exception_handler(request: Request, exc: Exception):  # type: ignore[no-untyped-def]
         return JSONResponse(
