@@ -41,6 +41,15 @@ def create_api() -> FastAPI:
     api.include_router(health_router)
     api.include_router(v1_router)
 
+    @api.middleware("http")
+    async def request_id_middleware(request: Request, call_next):  # type: ignore[no-untyped-def]
+        import uuid
+
+        req_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = req_id
+        return response
+
     @api.exception_handler(Exception)
     async def generic_exception_handler(request: Request, exc: Exception):  # type: ignore[no-untyped-def]
         return JSONResponse(
