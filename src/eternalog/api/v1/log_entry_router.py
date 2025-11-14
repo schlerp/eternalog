@@ -29,25 +29,39 @@ def get_db() -> Generator[Session, None, None]:  # dependency
         yield db
 
 
+from fastapi import Query
+
+
 @router.get("/log_entries", response_model=api_schemas.PaginatedLogEntries)
 def get_all_log_entries(
     db: Session = Depends(get_db),
     _: str = Depends(api_key_auth),
-    limit: int = 50,
-    offset: int = 0,
-    content_substr: str | None = None,
-    start_ts: datetime.datetime | None = None,
-    end_ts: datetime.datetime | None = None,
-    sort_field: str = "created_at",
-    sort_dir: str = "desc",
+    limit: int = Query(50, ge=1, le=100, description="Max items per page (1-100)"),
+    offset: int = Query(0, ge=0, description="Zero-based offset"),
+    content_substr: str | None = Query(
+        None, description="Case-insensitive substring match on content"
+    ),
+    start_ts: datetime.datetime | None = Query(
+        None, description="Filter entries with timestamp >= start_ts"
+    ),
+    end_ts: datetime.datetime | None = Query(
+        None, description="Filter entries with timestamp <= end_ts"
+    ),
+    sort_field: str = Query(
+        "created_at",
+        pattern="^(created_at|updated_at|timestamp)$",
+        description="Field to sort by",
+    ),
+    sort_dir: str = Query("desc", pattern="^(asc|desc)$", description="Sort direction"),
 ) -> api_schemas.PaginatedLogEntries:
-    """Get paginated log entries with optional filters and sorting."""
-    if limit > 100 or limit <= 0:
-        raise HTTPException(status_code=400, detail="limit out of range (1-100)")
-    if offset < 0:
-        raise HTTPException(status_code=400, detail="offset must be >= 0")
-    if sort_dir.lower() not in {"asc", "desc"}:
-        raise HTTPException(status_code=400, detail="sort_dir must be 'asc' or 'desc'")
+    """Get paginated log entries with optional filters and sorting.
+
+    Examples:
+    - Basic page: /api/v1/log_entries?limit=20
+    - Filter substring: /api/v1/log_entries?content_substr=error
+    - Date range: /api/v1/log_entries?start_ts=2025-01-01T00:00:00&end_ts=2025-01-31T23:59:59
+    - Sort ascending by timestamp: /api/v1/log_entries?sort_field=timestamp&sort_dir=asc
+    """
     entries, total = data_core.log_entry_search(
         db,
         limit=limit,
