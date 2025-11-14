@@ -27,7 +27,7 @@ SessionFactory = sessionmaker(
 
 
 @contextmanager
-def get_db_session() -> typing.Generator[Session]:
+def get_db_session() -> typing.Generator[Session, None, None]:
     db = SessionFactory()
     try:
         yield db

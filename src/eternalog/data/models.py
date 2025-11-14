@@ -14,8 +14,19 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
 
+from sqlalchemy import MetaData
+
+naming_convention = {
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+}
+
+
 class Base(MappedAsDataclass, DeclarativeBase):
-    pass
+    metadata = MetaData(naming_convention=naming_convention)
 
 
 class Block(Base):
@@ -44,6 +55,29 @@ class Block(Base):
         DateTime,
         insert_default=datetime.datetime.now,
         default_factory=datetime.datetime.now,
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        insert_default=datetime.datetime.now,
+        default_factory=datetime.datetime.now,
+    )
+
+
+class LogEntry(Base):
+    __tablename__ = "log_entry"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, init=False, default_factory=uuid.uuid4
+    )
+    content: Mapped[str] = mapped_column(String, index=True)
+    timestamp: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default_factory=datetime.datetime.now, index=True
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        insert_default=datetime.datetime.now,
+        default_factory=datetime.datetime.now,
+        index=True,
     )
     updated_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,

@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import json
+import argparse
+import datetime
+from eternalog.data import connection, core as data_core
+
+parser = argparse.ArgumentParser(description="Export log entries to JSON")
+parser.add_argument("--limit", type=int, default=100, help="Max entries")
+parser.add_argument("--offset", type=int, default=0, help="Offset")
+parser.add_argument("--content-substr", dest="content_substr", help="Content substring filter", default=None)
+parser.add_argument("--start-ts", dest="start_ts", help="Start timestamp (ISO)", default=None)
+parser.add_argument("--end-ts", dest="end_ts", help="End timestamp (ISO)", default=None)
+parser.add_argument("--sort-field", dest="sort_field", choices=["created_at", "updated_at", "timestamp"], default="created_at")
+parser.add_argument("--sort-dir", dest="sort_dir", choices=["asc", "desc"], default="desc")
+parser.add_argument("--output", dest="output", default="log_entries.json")
+args = parser.parse_args()
+
+start_ts = datetime.datetime.fromisoformat(args.start_ts) if args.start_ts else None
+end_ts = datetime.datetime.fromisoformat(args.end_ts) if args.end_ts else None
+
+with connection.get_db_session() as db:
+    items, total = data_core.log_entry_search(
+        db,
+        limit=args.limit,
+        offset=args.offset,
+        content_substr=args.content_substr,
+        start_ts=start_ts,
+        end_ts=end_ts,
+        sort_field=args.sort_field,
+        sort_dir=args.sort_dir,
+    )
+    out = {
+        "total": total,
+        "limit": args.limit,
+        "offset": args.offset,
+        "items": [
+            {
+                "id": str(i.id),
+                "content": i.content,
+                "timestamp": i.timestamp.isoformat(),
+                "created_at": i.created_at.isoformat(),
+                "updated_at": i.updated_at.isoformat(),
+            }
+            for i in items
+        ],
+    }
+    with open(args.output, "w") as f:
+        json.dump(out, f, indent=2)
+print(f"Exported {len(out['items'])} entries to {args.output}")

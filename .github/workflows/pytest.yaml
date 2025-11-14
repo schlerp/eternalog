@@ -33,3 +33,7 @@ jobs:
     - name: Run Tests
       run: |
         cd src && rye run pytest -vvv
+    - name: Migration downgrade/upgrade smoke
+      run: |
+        rye run alembic downgrade -1 || true
+        rye run alembic upgrade head

@@ -6,7 +6,7 @@ ROUTER_PATH = "/test"
 
 router = APIRouter(
     prefix=ROUTER_PATH,
-    tags=ROUTER_TAGS,
+    tags=ROUTER_TAGS,  # pyright: ignore [reportArgumentType]
     responses={404: {"description": "Not found"}},
 )
 
@@ -18,3 +18,8 @@ class TestResponse(pydantic.BaseModel):
 @router.get("/echo/{message}")
 def echo(message: str) -> TestResponse:
     return TestResponse(message=message)
+
+
+@router.get("/error")
+def trigger_error() -> TestResponse:  # type: ignore[no-untyped-def]
+    raise RuntimeError("forced test error")

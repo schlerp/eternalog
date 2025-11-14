@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TMP_MSG="precommit_check_$(date +%s)"
+REV_FILE=""
+
+cleanup() {
+  if [[ -n "${REV_FILE}" && -f "${REV_FILE}" ]]; then
+    rm -f "${REV_FILE}" || true
+  fi
+}
+trap cleanup EXIT
+
+# Generate a temporary autogenerate revision
+alembic revision --autogenerate -m "${TMP_MSG}" >/dev/null 2>&1 || {
+  echo "[migration-check] Failed to autogenerate revision" >&2
+  exit 1
+}
+REV_FILE=$(ls -1 migrations/versions/*_${TMP_MSG}.py 2>/dev/null || true)
+if [[ -z "${REV_FILE}" ]]; then
+  echo "[migration-check] No revision file generated (unexpected)." >&2
+  exit 1
+fi
+
+# Determine if meaningful changes exist (tables, columns, constraints ops)
+if grep -E "op\.create_table|op\.drop_table|op\.add_column|op\.drop_column|op\.create_foreign_key|op\.drop_constraint" "${REV_FILE}" >/dev/null; then
+  echo "[migration-check] Detected unapplied schema changes. Create a real migration before committing." >&2
+  cat "${REV_FILE}" >&2
+  exit 1
+else
+  # No changes; safe
+  echo "[migration-check] No new schema changes detected."
+fi
+
+# Remove temp revision file
+rm -f "${REV_FILE}" || true
+exit 0
