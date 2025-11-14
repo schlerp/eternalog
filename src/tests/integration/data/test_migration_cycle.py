@@ -2,25 +2,38 @@ import os
 import tempfile
 from pathlib import Path
 
-from sqlalchemy import inspect, create_engine
+from sqlalchemy import create_engine, inspect
+from alembic import command
+from alembic.config import Config
 
-from eternalog.data import models
+
+def _make_alembic_config(db_url: str) -> Config:
+    root = Path(__file__).resolve().parents[4]
+    cfg = Config(str(root / "alembic.ini"))
+    cfg.set_main_option("script_location", str(root / "migrations"))
+    cfg.set_main_option("sqlalchemy.url", db_url)
+    return cfg
 
 
 def test_migration_cycle() -> None:
-    # Use temp sqlite file
     tmp_dir = tempfile.TemporaryDirectory()
     db_path = Path(tmp_dir.name) / "cycle.db"
-    os.environ["ETERNALOG_SQLALCHEMY_DATABASE_URL"] = f"sqlite:///{db_path}"
+    db_url = f"sqlite:///{db_path}"
+
+    os.environ["ETERNALOG_SQLALCHEMY_DATABASE_URL"] = db_url
+    alembic_cfg = _make_alembic_config(db_url)
 
     # Upgrade head
-    os.system("alembic upgrade head")
-    engine = create_engine(os.environ["ETERNALOG_SQLALCHEMY_DATABASE_URL"])  # type: ignore[arg-type]
+    command.upgrade(alembic_cfg, "head")
+    engine = create_engine(db_url)
     insp = inspect(engine)
-    assert set(["block", "log_entry"]).issubset(set(insp.get_table_names()))
+    assert {"block", "log_entry"}.issubset(set(insp.get_table_names()))
 
-    # Downgrade and upgrade again
-    os.system("alembic downgrade -1 || true")
-    os.system("alembic upgrade head")
+    # Downgrade (ignore if base) then upgrade again
+    try:
+        command.downgrade(alembic_cfg, "-1")
+    except Exception:
+        pass
+    command.upgrade(alembic_cfg, "head")
     insp2 = inspect(engine)
-    assert set(["block", "log_entry"]).issubset(set(insp2.get_table_names()))
+    assert {"block", "log_entry"}.issubset(set(insp2.get_table_names()))
