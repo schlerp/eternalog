@@ -61,3 +61,16 @@ def test_pagination_limits() -> None:
         assert filter_resp.status_code == 200
         filt_items = filter_resp.json()["items"]
         assert any("msg-1" in it["content"] for it in filt_items)
+
+        # date range filter (start_ts/end_ts)
+        import datetime
+
+        now_iso = datetime.datetime.now().isoformat()
+        range_resp = client.get(
+            f"/api/v1/log_entries?start_ts={now_iso}&end_ts={now_iso}",
+            headers=API_HEADERS,
+        )
+        assert range_resp.status_code == 200
+        range_body = range_resp.json()
+        # Likely zero items in this tight range
+        assert "items" in range_body

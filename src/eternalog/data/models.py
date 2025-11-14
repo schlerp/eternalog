@@ -69,14 +69,15 @@ class LogEntry(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, init=False, default_factory=uuid.uuid4
     )
-    content: Mapped[str] = mapped_column(String)
+    content: Mapped[str] = mapped_column(String, index=True)
     timestamp: Mapped[datetime.datetime] = mapped_column(
-        DateTime, default_factory=datetime.datetime.now
+        DateTime, default_factory=datetime.datetime.now, index=True
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
         insert_default=datetime.datetime.now,
         default_factory=datetime.datetime.now,
+        index=True,
     )
     updated_at: Mapped[datetime.datetime] = mapped_column(
         DateTime,
