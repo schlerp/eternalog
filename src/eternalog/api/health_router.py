@@ -12,4 +12,4 @@ def live() -> dict[str, str]:
 @router.get("/ready")
 def ready() -> dict[str, str]:
     # Future: DB / external checks
-    return {"status": "ok", "time": datetime.datetime.utcnow().isoformat()}
+    return {"status": "ok", "time": datetime.datetime.now(datetime.UTC).isoformat()}

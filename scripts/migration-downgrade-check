@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ensure all revisions have a downgrade body that isn't empty/pass-only
+FAIL=0
+for f in migrations/versions/*.py; do
+  if grep -q "def downgrade" "$f"; then
+    # Extract downgrade function body lines after definition until next def
+    BODY=$(awk '/def downgrade/{flag=1;next}/def upgrade/{flag=0}flag' "$f")
+    # Check for meaningful operations
+    if ! echo "$BODY" | grep -E "op\.drop_table|op\.drop_column|op\.alter_column|op\.drop_constraint" >/dev/null; then
+      echo "[downgrade-check] Revision missing explicit downgrade operations: $f" >&2
+      FAIL=1
+    fi
+  fi
+done
+
+if [[ $FAIL -eq 1 ]]; then
+  echo "[downgrade-check] One or more revisions lack downgrade steps." >&2
+  exit 1
+fi
+
+echo "[downgrade-check] All revisions contain downgrade operations."

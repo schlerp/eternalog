@@ -39,4 +39,8 @@ repos:
         name: migration-check
         entry: "bash scripts/migration-check"
         language: system
+      - id: migration-downgrade-check
+        name: migration-downgrade-check
+        entry: "bash scripts/migration-downgrade-check"
+        language: system
 

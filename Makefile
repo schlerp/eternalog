@@ -4,7 +4,10 @@ ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 APP_NAME:="eternalog"
 
 .PHONY:
-	run-develop run-develop-native run-tests-native run-tests-native-loop run-shell run-prod
+	run-develop run-develop-native run-tests-native run-tests-native-loop run-shell run-prod seed-data
+
+seed-data:
+	zsh -c ". .venv/bin/activate && set -a && . ./dev.env && set +a && python scripts/seed-data"
 
 run-develop:
 	docker build --target develop -t ${APP_NAME} . && docker run -it --rm --env-file ./dev.env -v ${ROOT_DIR}/src/${APP_NAME}:/app/src/${APP_NAME} -p 8000:8000 ${APP_NAME}
