@@ -50,3 +50,25 @@ class Block(Base):
         insert_default=datetime.datetime.now,
         default_factory=datetime.datetime.now,
     )
+
+
+class LogEntry(Base):
+    __tablename__ = "log_entry"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, init=False, default_factory=uuid.uuid4
+    )
+    content: Mapped[str] = mapped_column(String)
+    timestamp: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default_factory=datetime.datetime.now
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        insert_default=datetime.datetime.now,
+        default_factory=datetime.datetime.now,
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime,
+        insert_default=datetime.datetime.now,
+        default_factory=datetime.datetime.now,
+    )

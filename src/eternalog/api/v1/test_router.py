@@ -6,7 +6,7 @@ ROUTER_PATH = "/test"
 
 router = APIRouter(
     prefix=ROUTER_PATH,
-    tags=ROUTER_TAGS,
+    tags=ROUTER_TAGS,  # pyright: ignore [reportArgumentType]
     responses={404: {"description": "Not found"}},
 )
 
