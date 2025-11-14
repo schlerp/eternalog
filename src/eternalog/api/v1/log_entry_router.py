@@ -4,6 +4,7 @@ import uuid
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from fastapi import Request
 from sqlalchemy.orm import Session
 
 from eternalog.api.v1 import schemas as api_schemas
@@ -32,8 +33,20 @@ def get_db() -> Generator[Session, None, None]:  # dependency
 from fastapi import Query
 
 
-@router.get("/log_entries", response_model=api_schemas.PaginatedLogEntries)
+from eternalog.api.rate_limit import rate_limiter, cache_get, cache_set, make_cache_key  # pyright: ignore [reportMissingImports]
+
+
+@router.get(
+    "/log_entries",
+    response_model=api_schemas.PaginatedLogEntries,
+    responses={
+        400: {"model": api_schemas.ErrorResponse},
+        404: {"model": api_schemas.ErrorResponse},
+        429: {"model": api_schemas.ErrorResponse},
+    },
+)
 def get_all_log_entries(
+    request: Request,
     db: Session = Depends(get_db),
     _: str = Depends(api_key_auth),
     limit: int = Query(50, ge=1, le=100, description="Max items per page (1-100)"),
@@ -62,6 +75,19 @@ def get_all_log_entries(
     - Date range: /api/v1/log_entries?start_ts=2025-01-01T00:00:00&end_ts=2025-01-31T23:59:59
     - Sort ascending by timestamp: /api/v1/log_entries?sort_field=timestamp&sort_dir=asc
     """
+    rate_limiter(request)  # rate limit per API key
+    cache_key = make_cache_key(
+        limit=limit,
+        offset=offset,
+        content_substr=content_substr or "",
+        start_ts=start_ts or "",
+        end_ts=end_ts or "",
+        sort_field=sort_field,
+        sort_dir=sort_dir,
+    )
+    cached = cache_get(cache_key)
+    if cached:
+        return cached
     entries, total = data_core.log_entry_search(
         db,
         limit=limit,
@@ -72,7 +98,7 @@ def get_all_log_entries(
         sort_field=sort_field,
         sort_dir=sort_dir,
     )
-    return api_schemas.PaginatedLogEntries(
+    response = api_schemas.PaginatedLogEntries(
         items=[
             api_schemas.LogEntryOut(
                 id=e.id,
@@ -87,6 +113,8 @@ def get_all_log_entries(
         limit=limit,
         offset=offset,
     )
+    cache_set(cache_key, response)
+    return response
 
 
 @router.get("/log_entries/{log_entry_id}", response_model=api_schemas.LogEntryOut)

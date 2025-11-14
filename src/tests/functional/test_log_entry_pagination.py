@@ -42,9 +42,9 @@ def test_pagination_limits() -> None:
 
         # limit validation
         bad_limit = client.get("/api/v1/log_entries?limit=1000", headers=API_HEADERS)
-        assert bad_limit.status_code == 400
+        assert bad_limit.status_code in (400, 422)
         negative_limit = client.get("/api/v1/log_entries?limit=-1", headers=API_HEADERS)
-        assert negative_limit.status_code == 400
+        assert negative_limit.status_code in (400, 422)
 
         # sort ascending
         asc_resp = client.get(

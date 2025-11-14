@@ -1,4 +1,8 @@
 from fastapi import FastAPI
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+from eternalog.api.v1 import schemas as api_schemas  # pyright: ignore [reportMissingImports]
 
 from eternalog.api.v1 import v1_router
 from eternalog.api.health_router import router as health_router  # pyright: ignore [reportMissingImports]
@@ -19,4 +23,14 @@ def create_api() -> FastAPI:
     )
     api.include_router(health_router)
     api.include_router(v1_router)
+
+    @api.exception_handler(Exception)
+    async def generic_exception_handler(request: Request, exc: Exception):  # type: ignore[no-untyped-def]
+        return JSONResponse(
+            status_code=500,
+            content=api_schemas.ErrorResponse(
+                detail=str(exc), code="internal_error"
+            ).model_dump(),
+        )
+
     return api

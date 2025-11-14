@@ -22,3 +22,10 @@ class PaginatedLogEntries(schemas.EternalogSchema):
     total: int
     limit: int
     offset: int
+
+
+class ErrorResponse(schemas.EternalogSchema):
+    """Error response body."""
+
+    detail: str
+    code: str | None = None

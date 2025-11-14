@@ -11,6 +11,7 @@ Immutable log storage & blockchain-inspired versioning service.
 ## Log Entry API
 - List: `GET /api/v1/log_entries?limit=<int>&offset=<int>&content_substr=<str>&start_ts=<iso>&end_ts=<iso>&sort_field=<created_at|updated_at|timestamp>&sort_dir=<asc|desc>`
   - Default `limit=50`, `offset=0`; max limit 100; returns `{items, total, limit, offset}`.
+  - Rate limit: 30 requests / minute per API key (HTTP 429 on exceed).
   - Examples:
     - Page: `/api/v1/log_entries?limit=25`
     - Substring: `/api/v1/log_entries?content_substr=error`
@@ -20,6 +21,10 @@ Immutable log storage & blockchain-inspired versioning service.
 - Create: `POST /api/v1/log_entries` (`content`, `timestamp` ISO8601)
 - Update: `PUT /api/v1/log_entries/{id}`
 - Delete: `DELETE /api/v1/log_entries/{id}` (returns deleted entry)
+
+## CLI Export
+- Script: `scripts/export-log-entries` (run with venv active)
+- Example: `python scripts/export-log-entries --limit 200 --content-substr error --output errors.json`
 
 ## Persistence
 - SQLite by default (`ETERNALOG_SQLALCHEMY_DATABASE_URL` override env)
