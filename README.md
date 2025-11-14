@@ -42,7 +42,17 @@ Immutable log storage & blockchain-inspired versioning service.
 ## Auth
 - All `/api/v1/log_entries` endpoints require header `X-API-Key: dev-key` (override via env `ETERNALOG_API_KEY`).
 
+## Request & Correlation IDs
+- Every response includes `X-Request-ID` and `X-Correlation-ID` headers (correlation defaults to request ID if absent).
+- Clients may supply `X-Request-ID` and/or `X-Correlation-ID` headers to propagate tracing across services.
+- On unhandled errors, the JSON body includes `request_id` and `correlation_id` fields for log correlation.
+
+## Error Responses
+- Format: `{ "detail": <str>, "code": <str|null>, "request_id": <str|null>, "correlation_id": <str|null> }`
+- Example 500: `{ "detail": "forced test error", "code": "internal_error", "request_id": "...", "correlation_id": "..." }`
+
 ## Development Notes
 - Use `loguru` for logging; no `print()`.
 - Avoid wildcard imports; single-line isort enforced.
 - Pydantic models define schemas; ORM models in `data/models.py`.
+
