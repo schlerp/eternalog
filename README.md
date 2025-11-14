@@ -38,6 +38,7 @@ Immutable log storage & blockchain-inspired versioning service.
 ## Health Endpoints
 - Liveness: `GET /health/live`
 - Readiness: `GET /health/ready`
+- Info: `GET /health/info` returns `{status, commit, start_time}` for deployment diagnostics.
 
 ## Auth
 - All `/api/v1/log_entries` endpoints require header `X-API-Key: dev-key` (override via env `ETERNALOG_API_KEY`).
@@ -55,4 +56,9 @@ Immutable log storage & blockchain-inspired versioning service.
 - Use `loguru` for logging; no `print()`.
 - Avoid wildcard imports; single-line isort enforced.
 - Pydantic models define schemas; ORM models in `data/models.py`.
+
+## Logging
+- Structured format includes time, level, request_id, correlation_id, message.
+- Provide `X-Request-ID` and/or `X-Correlation-ID` headers to propagate tracing across services.
+- Unhandled exceptions emit error log with `error_type` and IDs.
 
