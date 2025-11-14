@@ -29,22 +29,31 @@ def get_db() -> Generator[Session, None, None]:  # dependency
         yield db
 
 
-@router.get("/log_entries", response_model=list[api_schemas.LogEntryOut])
+@router.get("/log_entries", response_model=api_schemas.PaginatedLogEntries)
 def get_all_log_entries(
-    db: Session = Depends(get_db), _: str = Depends(api_key_auth)
-) -> list[api_schemas.LogEntryOut]:
-    """Get all log entries."""
-    entries = data_core.log_entry_list(db)
-    return [
-        api_schemas.LogEntryOut(
-            id=e.id,
-            created_at=e.created_at,
-            updated_at=e.updated_at,
-            content=e.content,
-            timestamp=e.timestamp,
-        )
-        for e in entries
-    ]
+    db: Session = Depends(get_db),
+    _: str = Depends(api_key_auth),
+    limit: int = 50,
+    offset: int = 0,
+) -> api_schemas.PaginatedLogEntries:
+    """Get paginated log entries."""
+    entries = data_core.log_entry_list(db, limit=limit, offset=offset)
+    total = data_core.log_entry_count(db)
+    return api_schemas.PaginatedLogEntries(
+        items=[
+            api_schemas.LogEntryOut(
+                id=e.id,
+                created_at=e.created_at,
+                updated_at=e.updated_at,
+                content=e.content,
+                timestamp=e.timestamp,
+            )
+            for e in entries
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @router.get("/log_entries/{log_entry_id}", response_model=api_schemas.LogEntryOut)

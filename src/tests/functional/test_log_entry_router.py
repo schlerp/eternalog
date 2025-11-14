@@ -34,7 +34,9 @@ class TestLogEntryRouter:
         with TestClient(app) as client:
             list_response = client.get("/api/v1/log_entries", headers=API_HEADERS)
             assert list_response.status_code == 200
-            assert isinstance(list_response.json(), list)
+            body = list_response.json()
+            assert "items" in body and isinstance(body["items"], list)
+            assert "total" in body and "limit" in body and "offset" in body
 
     def test_update_log_entry(self) -> None:
         with TestClient(app) as client:

@@ -39,6 +39,10 @@ def log_entry_list(
     )
 
 
+def log_entry_count(db: Session) -> int:  # type: ignore[no-untyped-def]
+    return db.query(models.LogEntry).count()
+
+
 def log_entry_update(
     db: Session, entry_id, *, content: str | None = None, timestamp=None
 ) -> models.LogEntry | None:  # type: ignore[no-untyped-def]

@@ -13,3 +13,12 @@ class LogEntryOut(schemas.LogEntry):
 
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+
+class PaginatedLogEntries(schemas.EternalogSchema):
+    """Paginated log entries response."""
+
+    items: list[LogEntryOut]
+    total: int
+    limit: int
+    offset: int
