@@ -5,7 +5,7 @@ repos:
   - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.390
     hooks:
-    - id: pyright
+      - id: pyright
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -29,18 +29,20 @@ repos:
         args: ["--fix", "--exit-non-zero-on-fix"]
       - id: ruff-format
 
-    - repo: local
+  - repo: local
     hooks:
       - id: pytest-check
         name: pytest-check
-        entry: "sh scripts/pytest-branch"
+        entry: sh scripts/pytest-branch
         language: system
+        pass_filenames: false
       - id: migration-check
         name: migration-check
-        entry: "bash scripts/migration-check"
+        entry: bash scripts/migration-check
         language: system
+        pass_filenames: false
       - id: migration-downgrade-check
         name: migration-downgrade-check
-        entry: "bash scripts/migration-downgrade-check"
+        entry: bash scripts/migration-downgrade-check
         language: system
-
+        pass_filenames: false
